@@ -9,21 +9,56 @@
 #include <dt-bindings/zmk/keys.h>
 
 / {
+    behaviors {
+        // Home-row Shift: tap for the letter, hold for Shift.
+        // Key positions (Corne 42): rows of 12, thumbs are 36-41.
+        //   Left hand:  0-5, 12-17, 24-29, thumbs 36-38
+        //   Right hand: 6-11, 18-23, 30-35, thumbs 39-41
+        // hold-trigger-key-positions: only keys on the OTHER hand (plus all thumbs) can turn
+        //   the key into Shift. Same-hand rolls like "df" or "kl" always type letters.
+        // balanced: Shift only if the other key is pressed AND released while this one is held.
+        // require-prior-idle-ms: pressed within this long after another key, it is always the
+        //   letter. Lower it if a fast Space -> capital letter comes out lowercase.
+        // quick-tap-ms: tap then hold again quickly to auto-repeat the letter.
+        hrs_left: home_row_shift_left {
+            compatible = "zmk,behavior-hold-tap";
+            display-name = "Home Row Shift (Left)";
+            #binding-cells = <2>;
+            flavor = "balanced";
+            tapping-term-ms = <280>;
+            quick-tap-ms = <175>;
+            require-prior-idle-ms = <125>;
+            hold-trigger-key-positions = <6 7 8 9 10 11 18 19 20 21 22 23 30 31 32 33 34 35 36 37 38 39 40 41>;
+            bindings = <&kp>, <&kp>;
+        };
+        hrs_right: home_row_shift_right {
+            compatible = "zmk,behavior-hold-tap";
+            display-name = "Home Row Shift (Right)";
+            #binding-cells = <2>;
+            flavor = "balanced";
+            tapping-term-ms = <280>;
+            quick-tap-ms = <175>;
+            require-prior-idle-ms = <125>;
+            hold-trigger-key-positions = <0 1 2 3 4 5 12 13 14 15 16 17 24 25 26 27 28 29 36 37 38 39 40 41>;
+            bindings = <&kp>, <&kp>;
+        };
+    };
+
     keymap {
         compatible = "zmk,keymap";
 
         default_layer {
             // -----------------------------------------------------------------------------------------
-            // |  TAB |  Q  |  W  |  E  |  R  |  T  |   |  Y  |  U   |  I  |  O  |  P  | BSPC |
-            // | CTRL |  A  |  S  |  D  |  F  |  G  |   |  H  |  J   |  K  |  L  |  ;  |  '   |
-            // | SHFT |  Z  |  X  |  C  |  V  |  B  |   |  N  |  M   |  ,  |  .  |  /  | ESC  |
-            //                    | GUI | LWR | SPC |   | ENT | RSE  | ALT |
+            // |  TAB    |  Q  |  W  |  E  |  R  |  T  |   |  Y  |  U  |  I  |  O  |  P  |  \   |
+            // |  ESC    |  A  |  S  |D/SFT|  F  |  G  |   |  H  |  J  |K/SFT|  L  |  ;  |  '   |
+            // |   ALT   |  Z  |  X  |  C  |  V  |  B  |   |  N  |  M  |  ,  |  .  |  /  | BSPC |
+            //                       | CMD | LWR | RET/CTRL |   | BSPC | SPC | RSE |
 
             bindings = <
-&mt LEFT_COMMAND TAB  &kp Q  &kp W  &kp E                   &kp R  &kp T               &kp Y                     &kp U      &kp I      &kp O       &kp P     &mt RIGHT_COMMAND BACKSLASH
-&kp ESCAPE            &kp A  &kp S  &kp D                   &kp F  &kp G               &kp H                     &kp J      &kp K      &kp L       &kp SEMI  &kp SQT
-&mt LEFT_ALT RET      &kp Z  &kp X  &kp C                   &kp V  &kp B               &kp N                     &kp M      &kp COMMA  &kp PERIOD  &kp FSLH  &kp BACKSPACE
-                                    &mt LEFT_COMMAND SPACE  &mo 1  &mt LCTRL RETURN    &mt LEFT_SHIFT BACKSPACE  &kp SPACE  &mo 2
+&kp TAB               &kp Q  &kp W  &kp E                   &kp R  &kp T               &kp Y                     &kp U      &kp I      &kp O       &kp P     &kp BACKSLASH
+&kp ESCAPE            &kp A  &kp S  &hrs_left LSHIFT D     &kp F  &kp G               &kp H                     &kp J      &hrs_right RSHIFT K  &kp L       &kp SEMI  &kp SQT
+&kp LEFT_ALT          &kp Z  &kp X  &kp C                   &kp V  &kp B               &kp N                     &kp M      &kp COMMA  &kp PERIOD  &kp FSLH  &kp BACKSPACE
+                                    &kp LEFT_COMMAND        &mo 1  &mt LCTRL RETURN    &kp BACKSPACE  &kp SPACE  &mo 2
             >;
         };
 
